@@ -1011,6 +1011,14 @@
     if (e.target === this) closeClearModal();
   });
 
+  document.getElementById('type-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      var btn = document.getElementById('show-btn-toggle');
+      if (!btn.disabled) handleSubmit();
+    }
+  });
+
   buildToggles();
 </script>
 </body>
