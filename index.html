@@ -6,43 +6,133 @@
   <title>Encouraging Word</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #f5f5f0;
       min-height: 100vh;
       display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding: 2rem 1rem;
+      flex-direction: column;
     }
-    #app { width: 100%; max-width: 560px; }
-    .screen { display: none; }
-    .screen.active { display: block; }
-    .card {
-      background: #ffffff;
-      border: 1px solid #e5e5e0;
-      border-radius: 14px;
-      padding: 1.75rem;
+
+    /* Full-width layout */
+    .page {
+      display: flex;
+      flex: 1;
+      min-height: 100vh;
     }
-    .header {
+
+    /* Left sidebar */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: #fff;
+      border-right: 1px solid #e5e5e0;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.5rem;
+    }
+    .sidebar-logo {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 1.5rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 1px solid #e5e5e0;
+      gap: 10px;
+      margin-bottom: 2rem;
     }
     .cross-circle {
-      width: 40px; height: 40px;
+      width: 38px; height: 38px;
       border-radius: 50%;
       background: #E1F5EE;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      font-size: 20px;
+      font-size: 18px;
       color: #1D9E75;
     }
-    .header-text p { font-size: 15px; font-weight: 600; color: #111; }
-    .header-text span { font-size: 12px; color: #888; }
+    .sidebar-logo-text p { font-size: 15px; font-weight: 600; color: #111; }
+    .sidebar-logo-text span { font-size: 12px; color: #888; }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: auto;
+    }
+    .nav-btn {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #555;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .nav-btn:hover { background: #f5f5f0; color: #111; }
+    .nav-btn.active { background: #E1F5EE; color: #085041; font-weight: 500; }
+
+    .sidebar-footer {
+      font-size: 12px;
+      color: #bbb;
+      line-height: 1.6;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e5e5e0;
+    }
+
+    /* Main content area */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .main-header {
+      padding: 1.5rem 2.5rem;
+      border-bottom: 1px solid #e5e5e0;
+      background: #fff;
+    }
+    .main-header h1 { font-size: 20px; font-weight: 600; color: #111; margin-bottom: 2px; }
+    .main-header p { font-size: 13px; color: #888; }
+
+    .main-body {
+      flex: 1;
+      padding: 2rem 2.5rem;
+      overflow-y: auto;
+    }
+
+    /* Fixed-height content panel so outer container doesn't resize */
+    .content-panel {
+      background: #fff;
+      border: 1px solid #e5e5e0;
+      border-radius: 14px;
+      min-height: 580px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen { display: none; flex-direction: column; flex: 1; }
+    .screen.active { display: flex; }
+
+    .screen-body {
+      flex: 1;
+      padding: 1.75rem 2rem;
+      overflow-y: auto;
+    }
+
+    /* Fixed action bar at bottom of panel */
+    .action-bar {
+      padding: 1rem 2rem;
+      border-top: 1px solid #e5e5e0;
+      background: #fff;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* Tabs */
     .tab-row {
       display: flex;
       margin-bottom: 1.25rem;
@@ -64,16 +154,19 @@
     .tab-btn:first-child { border-right: 1px solid #e0e0e0; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
+
     .question { font-size: 15px; font-weight: 500; color: #111; margin-bottom: 4px; }
     .question-sub { font-size: 13px; color: #888; margin-bottom: 1rem; line-height: 1.5; }
+
+    /* Toggle grid — responsive */
     .toggle-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
-      margin-bottom: 1.25rem;
+      margin-bottom: 0.5rem;
     }
     .toggle-btn {
-      padding: 12px 10px;
+      padding: 14px 10px;
       border: 1px solid #ddd;
       border-radius: 10px;
       background: #fff;
@@ -86,7 +179,8 @@
     }
     .toggle-btn:hover { background: #f5f5f0; }
     .toggle-btn.selected { border-color: #1D9E75; background: #E1F5EE; color: #085041; }
-    .toggle-btn .icon { font-size: 15px; display: block; margin-bottom: 4px; }
+    .toggle-btn .icon { font-size: 16px; display: block; margin-bottom: 5px; }
+
     .type-area {
       width: 100%;
       padding: 12px 14px;
@@ -97,17 +191,19 @@
       color: #222;
       background: #fff;
       resize: none;
-      min-height: 90px;
+      min-height: 100px;
       outline: none;
       line-height: 1.6;
       margin-bottom: 8px;
       transition: border-color 0.15s;
     }
     .type-area:focus { border-color: #1D9E75; }
-    .type-hint { font-size: 12px; color: #aaa; margin-bottom: 1.25rem; line-height: 1.5; }
-    .show-btn {
-      width: 100%;
-      padding: 12px;
+    .type-hint { font-size: 12px; color: #aaa; line-height: 1.5; }
+
+    /* Action bar buttons */
+    .primary-btn {
+      flex: 1;
+      padding: 11px;
       background: #1D9E75;
       color: white;
       border: none;
@@ -115,9 +211,26 @@
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
+      transition: background 0.15s;
     }
-    .show-btn:hover { background: #0F6E56; }
-    .show-btn:disabled { background: #ddd; color: #aaa; cursor: default; }
+    .primary-btn:hover { background: #0F6E56; }
+    .primary-btn:disabled { background: #ddd; color: #aaa; cursor: default; }
+
+    .secondary-btn {
+      padding: 11px 18px;
+      background: transparent;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .secondary-btn:hover { background: #f5f5f0; }
+
+    /* Verse result styles */
+    .feeling-tags { margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 6px; }
     .feeling-tag {
       display: inline-block;
       font-size: 12px;
@@ -125,8 +238,6 @@
       background: #E1F5EE;
       color: #085041;
       border-radius: 20px;
-      margin-bottom: 1.25rem;
-      margin-right: 6px;
     }
     .combined-banner {
       background: #f0faf5;
@@ -143,7 +254,7 @@
       border-left: 3px solid #1D9E75;
       padding: 1rem 1.25rem;
       background: #f9faf8;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1rem;
     }
     .verse-text {
       font-size: 15px;
@@ -161,36 +272,32 @@
       color: #999;
       margin-bottom: 6px;
     }
-    .interp-text {
+    .interp-short {
       font-size: 14px;
       color: #333;
       line-height: 1.75;
-      margin-bottom: 1.5rem;
+      margin-bottom: 6px;
     }
-    .divider { border: none; border-top: 1px solid #e5e5e0; margin: 1.25rem 0; }
-    .outline-btn {
-      width: 100%;
-      padding: 10px;
-      background: transparent;
+    .interp-long {
+      font-size: 14px;
+      color: #333;
+      line-height: 1.75;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .expand-btn {
+      background: none;
+      border: none;
       color: #1D9E75;
-      border: 1px solid #1D9E75;
-      border-radius: 10px;
       font-size: 13px;
       cursor: pointer;
-      margin-bottom: 8px;
+      padding: 0;
+      margin-bottom: 1.25rem;
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
-    .outline-btn:hover { background: #E1F5EE; }
-    .ghost-btn {
-      width: 100%;
-      padding: 9px;
-      background: transparent;
-      color: #888;
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
-      font-size: 13px;
-      cursor: pointer;
-    }
-    .ghost-btn:hover { background: #f5f5f0; }
+    .expand-btn:hover { color: #0F6E56; }
+    .divider { border: none; border-top: 1px solid #e5e5e0; margin: 1.25rem 0; }
     .no-match {
       background: #fff8f0;
       border: 1px solid #f5d9b8;
@@ -201,121 +308,306 @@
       line-height: 1.6;
       margin-bottom: 1.25rem;
     }
+
+    /* Verse history sidebar panel */
+    .history-list { display: flex; flex-direction: column; gap: 12px; }
+    .history-item {
+      background: #f9faf8;
+      border: 1px solid #e5e5e0;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+    .history-item .hi-label { font-size: 12px; color: #1D9E75; font-weight: 500; margin-bottom: 4px; }
+    .history-item .hi-ref { font-size: 12px; color: #888; margin-top: 6px; }
+    .history-item .hi-verse { font-size: 13px; font-style: italic; color: #333; line-height: 1.6; }
+    .empty-history { font-size: 14px; color: #aaa; text-align: center; padding: 2rem 0; line-height: 1.7; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .sidebar { width: 220px; padding: 1.5rem 1rem; }
+      .main-body { padding: 1.5rem; }
+      .toggle-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .page { flex-direction: column; }
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #e5e5e0; padding: 1rem; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 8px; }
+      .sidebar-footer { display: none; }
+      .sidebar-nav { flex-direction: row; margin-bottom: 0; }
+      .main-body { padding: 1rem; }
+    }
   </style>
 </head>
 <body>
-<div id="app">
+<div class="page">
 
-  <div id="screen-pick" class="screen active">
-    <div class="card">
-      <div class="header">
-        <div class="cross-circle">✝</div>
-        <div class="header-text">
-          <p>Encouraging Word</p>
-          <span>Biblical comfort for lonely moments</span>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="cross-circle">✝</div>
+      <div class="sidebar-logo-text">
+        <p>Encouraging Word</p>
+        <span>Biblical comfort</span>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" onclick="showScreen('pick')">Find a verse</button>
+      <button class="nav-btn" onclick="showScreen('history')">Verse history</button>
+    </nav>
+    <div class="sidebar-footer">
+      All verses from the English Standard Version (ESV). This tool is not a substitute for pastoral care or professional support.
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="main-header">
+      <h1 id="main-title">Find a verse</h1>
+      <p id="main-sub">Select your feelings or describe them in your own words</p>
+    </div>
+    <div class="main-body">
+      <div class="content-panel">
+
+        <!-- SCREEN: Pick feelings -->
+        <div class="screen active" id="screen-pick">
+          <div class="screen-body">
+            <div class="tab-row">
+              <button class="tab-btn active" id="tab-toggle" onclick="switchTab('toggle')">Choose a feeling</button>
+              <button class="tab-btn" id="tab-type" onclick="switchTab('type')">Describe in your words</button>
+            </div>
+
+            <div class="tab-panel active" id="panel-toggle">
+              <p class="question">How are you feeling right now?</p>
+              <p class="question-sub">Select one or more. Multiple selections will find a verse that speaks to them together.</p>
+              <div class="toggle-grid" id="toggle-grid"></div>
+            </div>
+
+            <div class="tab-panel" id="panel-type">
+              <p class="question">Describe how you are feeling</p>
+              <p class="question-sub">Write in your own words — the app will find the most relevant verse.</p>
+              <textarea class="type-area" id="type-input" placeholder="e.g. I feel like nobody cares about me, or I have been feeling really empty and alone lately..." oninput="onTypeInput()"></textarea>
+              <p class="type-hint">Try words like: alone, empty, scared, hopeless, unseen, forgotten, tired, afraid, worthless, lost...</p>
+            </div>
+          </div>
+          <div class="action-bar">
+            <button class="primary-btn" id="show-btn-toggle" onclick="showFromToggles()" disabled>Show me a verse</button>
+          </div>
         </div>
-      </div>
-      <div class="tab-row">
-        <button class="tab-btn active" id="tab-toggle" onclick="switchTab('toggle')">Choose a feeling</button>
-        <button class="tab-btn" id="tab-type" onclick="switchTab('type')">Describe in your words</button>
-      </div>
-      <div class="tab-panel active" id="panel-toggle">
-        <p class="question">How are you feeling right now?</p>
-        <p class="question-sub">Select one or more. If you pick several, you will receive a verse that speaks to them together.</p>
-        <div class="toggle-grid" id="toggle-grid"></div>
-        <button class="show-btn" id="show-btn-toggle" onclick="showFromToggles()" disabled>Show me a verse</button>
-      </div>
-      <div class="tab-panel" id="panel-type">
-        <p class="question">Describe how you are feeling</p>
-        <p class="question-sub">Write in your own words — the app will find a verse that matches what you share.</p>
-        <textarea class="type-area" id="type-input" placeholder="e.g. I feel like nobody cares about me, or I have been feeling really empty and alone lately..." oninput="onTypeInput()"></textarea>
-        <p class="type-hint">Try words like: alone, empty, scared, hopeless, unseen, forgotten, tired, afraid, worthless, lost...</p>
-        <button class="show-btn" id="show-btn-type" onclick="showFromText()" disabled>Find a verse</button>
+
+        <!-- SCREEN: Verse result -->
+        <div class="screen" id="screen-verse">
+          <div class="screen-body" id="verses-container"></div>
+          <div class="action-bar">
+            <button class="secondary-btn" onclick="goBack()">← Go back</button>
+            <button class="primary-btn" onclick="resetAll()">Start over</button>
+          </div>
+        </div>
+
+        <!-- SCREEN: History -->
+        <div class="screen" id="screen-history">
+          <div class="screen-body">
+            <p class="question" style="margin-bottom: 1rem;">Verses you have received</p>
+            <div class="history-list" id="history-list"></div>
+          </div>
+          <div class="action-bar">
+            <button class="secondary-btn" onclick="showScreen('pick')">← Back to feelings</button>
+            <button class="primary-btn" style="background:#e74c3c;" onclick="clearHistory()">Clear history</button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
-
-  <div id="screen-verse" class="screen">
-    <div class="card">
-      <div class="header">
-        <div class="cross-circle">✝</div>
-        <div class="header-text">
-          <p>Encouraging Word</p>
-          <span>Biblical comfort for lonely moments</span>
-        </div>
-      </div>
-      <div id="verses-container"></div>
-      <button class="outline-btn" onclick="goBack()">Go back</button>
-      <button class="ghost-btn" onclick="resetAll()">Start over</button>
-    </div>
-  </div>
-
 </div>
+
 <script>
   var feelings = [
     {
       label: "I feel invisible",
       icon: "◎",
-      tags: ["invisible","unseen","ignored","overlooked","unnoticed","nobody sees","no one sees"],
-      verse: "Are not two sparrows sold for a penny? And not one of them will fall to the ground apart from your Father. But even the hairs of your head are all numbered. Fear not, therefore; you are of more value than many sparrows.",
-      ref: "Matthew 10:29-31 (ESV)",
-      interp: "God notices even the smallest creatures — and He notices you. Your pain of feeling unseen is real, but Scripture promises that the Father's gaze has never left you. You are not overlooked. You are counted, named, and valued by the One whose attention never fades."
+      tags: ["invisible","unseen","ignored","overlooked","unnoticed","nobody sees","no one sees","no one notices"],
+      verses: [
+        {
+          verse: "Are not two sparrows sold for a penny? And not one of them will fall to the ground apart from your Father. But even the hairs of your head are all numbered. Fear not, therefore; you are of more value than many sparrows.",
+          ref: "Matthew 10:29-31 (ESV)",
+          short: "God notices even the smallest creatures — and He notices you. You are counted, named, and valued.",
+          long: "Your pain of feeling unseen is real, but Scripture promises that the Father's gaze has never left you. Jesus uses the image of the sparrow to make a point about proportion: if God tracks even the most common, inexpensive creature in the marketplace, how much more does He attend to you? The numbering of your hairs is not a trivial detail — it is a declaration that God's knowledge of you is intimate, specific, and ongoing. You are not overlooked. The attention of God is not divided among billions until nothing remains for you. It is complete and undivided, resting on you at this moment."
+        },
+        {
+          verse: "O Lord, you have searched me and known me! You know when I sit down and when I rise up; you discern my thoughts from afar.",
+          ref: "Psalm 139:1-2 (ESV)",
+          short: "Long before you felt invisible, God had already searched you and known you completely.",
+          long: "Psalm 139 is one of the most intimate passages in all of Scripture. The psalmist is not describing a God who glances in his direction occasionally — he is describing a God who searches, who knows, who discerns thoughts before they become words. To feel invisible is to feel that your inner life goes unnoticed by the world around you. But God is not the world. He sees what others miss. He knows what you cannot put into words. Your feeling of invisibility is real, but it does not describe your standing before the One who formed you."
+        },
+        {
+          verse: "Even the sparrow finds a home, and the swallow a nest for herself, where she may lay her young, at your altars, O Lord of hosts, my King and my God.",
+          ref: "Psalm 84:3 (ESV)",
+          short: "God makes a home even for small, quiet creatures. You are not a stranger to Him.",
+          long: "The psalmist is describing the temple — God's dwelling place — and notices that even a sparrow has found shelter there. The bird did not earn its place. It simply came, and God made room for it. When you feel invisible, it can seem as though there is no place for you in the world, no room where you belong. But this verse says something different: even the smallest creature finds a home in the presence of God. You are more than a sparrow. There is room for you."
+        }
+      ]
     },
     {
       label: "I feel forgotten",
       icon: "◷",
-      tags: ["forgotten","nobody","no one","remember","care","cares","doesn't care","don't care"],
-      verse: "Can a woman forget her nursing child, that she should have no compassion on the son of her womb? Even these may forget, yet I will not forget you. Behold, I have engraved you on the palms of my hands.",
-      ref: "Isaiah 49:15-16 (ESV)",
-      interp: "God uses the most intimate human bond — a mother and her child — to describe how impossible it is for Him to forget you. And then He goes further: your name is engraved on His hands. This is a permanent, unbreakable remembrance. You have not slipped His mind."
+      tags: ["forgotten","nobody","no one","remember","care","cares","doesn't care","don't care","left out"],
+      verses: [
+        {
+          verse: "Can a woman forget her nursing child, that she should have no compassion on the son of her womb? Even these may forget, yet I will not forget you. Behold, I have engraved you on the palms of my hands.",
+          ref: "Isaiah 49:15-16 (ESV)",
+          short: "Your name is engraved on God's hands. This is a permanent, unbreakable remembrance.",
+          long: "God uses the most intimate human bond — a mother and her nursing child — to describe how impossible it is for Him to forget you. And then He goes even further: your name is engraved on His hands. In the ancient world, engraving was permanent. It could not be washed off or worn away. This is not a temporary note God wrote to himself. It is a mark that will not fade. Even if every person in your life has failed to remember you, the God who spoke the world into existence has your name written into His very hands. You have not slipped His mind. You could not."
+        },
+        {
+          verse: "For the Lord will not forsake his people; he will not abandon his heritage.",
+          ref: "Psalm 94:14 (ESV)",
+          short: "God's commitment to His people is not conditional on their circumstances or visibility.",
+          long: "The word 'forsake' in this verse carries the meaning of leaving someone behind when you move on — abandoning them to their situation. God declares that this is not something He does. His people are His heritage, a word that implies inheritance, permanent belonging, and deep personal investment. When you feel forgotten, it can seem as though the world has moved on without you. But God does not move on. His people remain His, and that includes you — not because of your performance, but because of His commitment."
+        },
+        {
+          verse: "I have loved you with an everlasting love; therefore I have continued my faithfulness to you.",
+          ref: "Jeremiah 31:3 (ESV)",
+          short: "God's love for you has no beginning that could be erased and no end that could arrive.",
+          long: "The prophet Jeremiah spoke these words to a people who had experienced devastating loss and felt completely abandoned by God. God's response was not to explain the suffering, but to declare the permanence of His love. The word 'everlasting' means it preceded your birth and will outlast your death. It is not dependent on circumstances, feelings, or faithfulness on your part. The God who knows your name loved you before you could be forgotten, and He loves you still."
+        }
+      ]
     },
     {
       label: "I feel isolated",
       icon: "○",
-      tags: ["isolated","alone","lonely","loneliness","by myself","no friends","empty","all alone","no one around"],
-      verse: "For I am sure that neither death nor life, nor angels nor rulers, nor things present nor things to come, nor powers, nor height nor depth, nor anything else in all creation, will be able to separate us from the love of God in Christ Jesus our Lord.",
-      ref: "Romans 8:38-39 (ESV)",
-      interp: "Paul lists every possible force — cosmic, earthly, past, future — and declares that none of them can cut you off from God's love. Physical distance from others is real and painful, but your separation from God is impossible. His love surrounds you even in the quietest room."
+      tags: ["isolated","alone","lonely","loneliness","by myself","no friends","empty","all alone","no one around","disconnected"],
+      verses: [
+        {
+          verse: "For I am sure that neither death nor life, nor angels nor rulers, nor things present nor things to come, nor powers, nor height nor depth, nor anything else in all creation, will be able to separate us from the love of God in Christ Jesus our Lord.",
+          ref: "Romans 8:38-39 (ESV)",
+          short: "No force in creation — not even your isolation — can cut you off from God's love.",
+          long: "Paul lists every possible category of thing that might separate a person from love: cosmic powers, time itself, the full height and depth of the universe. And he declares that none of them can do it. Physical isolation from other people is real and painful. The absence of community leaves a genuine wound. But your separation from God is a different matter entirely — it is not possible. His love does not require proximity. It is not affected by your circumstances or your feelings about yourself. Even in the quietest, most empty room, you are surrounded by love that cannot be removed."
+        },
+        {
+          verse: "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul.",
+          ref: "Psalm 23:1-3 (ESV)",
+          short: "God tends to you personally, like a shepherd who knows each sheep by name.",
+          long: "The shepherd in the ancient world was not a distant administrator. He lived with his flock, knew each animal, and was personally responsible for their welfare. When you feel isolated, it can seem as though no one is watching over you, no one is leading you toward anything good. Psalm 23 says the opposite: there is a shepherd, and He is leading you toward rest, toward still water, toward restoration. The soul that is restored is not one that never broke — it is one that was tended to. God is tending to you."
+        },
+        {
+          verse: "The Lord is near to the brokenhearted and saves the crushed in spirit.",
+          ref: "Psalm 34:18 (ESV)",
+          short: "God does not stand at a distance from the isolated. He draws near.",
+          long: "This verse does not say God is near to the strong or to the put-together. It says He is near to the brokenhearted — those whose hearts have been fractured by experience — and to the crushed in spirit. The word 'crushed' implies something that has been pressed down under weight. If isolation has left you feeling pressed down, this verse is speaking directly to your situation. God's nearness is not a reward for those who have managed their pain well. It is a specific, deliberate movement toward those who are most broken."
+        }
+      ]
     },
     {
       label: "I feel misunderstood",
       icon: "◑",
-      tags: ["misunderstood","nobody gets me","no one understands","different","weird","don't understand","doesn't understand"],
-      verse: "O Lord, you have searched me and known me! You know when I sit down and when I rise up; you discern my thoughts from afar.",
-      ref: "Psalm 139:1-2 (ESV)",
-      interp: "When people around you fail to understand your heart, remember that God already knows it completely. He does not need you to explain yourself — He sees your thoughts before they form into words. To be fully known by God is a deeper understanding than any human relationship can offer."
+      tags: ["misunderstood","nobody gets me","no one understands","different","weird","don't understand","doesn't understand","feel judged"],
+      verses: [
+        {
+          verse: "O Lord, you have searched me and known me! You know when I sit down and when I rise up; you discern my thoughts from afar.",
+          ref: "Psalm 139:1-2 (ESV)",
+          short: "God knows you completely — not the version others see, but your actual self.",
+          long: "When people around you fail to understand your heart, remember that God already knows it completely. He does not need you to explain yourself or find the right words. He sees your thoughts before they form into language. He knows the context for everything you feel and everything you do. To be misunderstood by others is painful. But to be fully known by God is a deeper understanding than any human relationship can offer. You are not a mystery to Him. You are not confusing. You are known."
+        },
+        {
+          verse: "For we do not have a high priest who is unable to sympathize with our weaknesses, but one who in every respect has been tempted as we are, yet without sin.",
+          ref: "Hebrews 4:15 (ESV)",
+          short: "Jesus was misunderstood throughout His life. He knows what it feels like.",
+          long: "Jesus was frequently misunderstood — by religious leaders who thought He was dangerous, by crowds who wanted to make Him king for the wrong reasons, by His own disciples who could not grasp what He was doing until after the resurrection. When you feel that no one around you truly gets who you are or what you are going through, you are not alone in that experience. Jesus lived it. And because He did, He does not sympathize with your pain from a distance. He understands it from the inside."
+        }
+      ]
     },
     {
       label: "I feel abandoned",
       icon: "◌",
-      tags: ["abandoned","left","left me","left behind","rejected","walked away","walked out","left alone"],
-      verse: "Be strong and courageous. Do not fear or be in dread of them, for it is the Lord your God who goes with you. He will not leave you or forsake you.",
-      ref: "Deuteronomy 31:6 (ESV)",
-      interp: "These words were spoken to Israel before they faced one of the most frightening moments in their history. God's answer to their fear was not a better plan — it was His presence. The same promise holds for you today. He goes with you. Leaving you is not something He does."
+      tags: ["abandoned","left","left me","left behind","rejected","walked away","walked out","left alone","no one stayed"],
+      verses: [
+        {
+          verse: "Be strong and courageous. Do not fear or be in dread of them, for it is the Lord your God who goes with you. He will not leave you or forsake you.",
+          ref: "Deuteronomy 31:6 (ESV)",
+          short: "He goes with you. Leaving you is not something God does.",
+          long: "These words were spoken to Israel as they stood on the edge of the most frightening transition of their national life. Moses was about to die. Their great leader was leaving them. God's answer to that fear was not a better strategy — it was His presence. The same promise holds for you today. Every person who has left your life departed, but God did not go with them. He goes with you, specifically. His presence is not a general spiritual atmosphere — it is personal, directional, and accompanying. Wherever you go next, He is already there, going with you."
+        },
+        {
+          verse: "Cast your burden on the Lord, and he will sustain you; he will never permit the righteous to be moved.",
+          ref: "Psalm 55:22 (ESV)",
+          short: "God does not leave you to carry what others have placed on you or taken from you.",
+          long: "The context of Psalm 55 is striking: it was written by someone who had been betrayed by a close friend. The psalmist is not dealing with a stranger's rejection — he is dealing with the specific pain of someone he trusted walking away. If abandonment has left you carrying something heavy, this verse invites you to throw that weight onto God. He will sustain you — the word means to hold you up, to keep you from collapsing. Being abandoned by people does not mean being abandoned by God."
+        },
+        {
+          verse: "Where shall I go from your Spirit? Or where shall I flee from your presence? If I ascend to heaven, you are there! If I make my bed in Sheol, you are there.",
+          ref: "Psalm 139:7-8 (ESV)",
+          short: "There is no place you can go where God is not already present.",
+          long: "The psalmist maps out the full range of human experience — the heights of joy and the depths of despair — and finds God in all of it. This is not a threat but a comfort: you cannot be abandoned to a place where God is not. Even in the place the psalmist calls Sheol, the deepest darkness imaginable, God is there. The feeling of abandonment is real. But it does not describe the full truth of your situation. Wherever you are, God is already there."
+        }
+      ]
     },
     {
       label: "I feel like a burden",
       icon: "◐",
-      tags: ["burden","too much","bother","bothering","worthless","useless","waste","in the way","no one wants me"],
-      verse: "Come to me, all who labor and are heavy laden, and I will give you rest. Take my yoke upon you, and learn from me, for I am gentle and lowly in heart, and you will find rest for your souls.",
-      ref: "Matthew 11:28-29 (ESV)",
-      interp: "Jesus does not invite the strong and self-sufficient — He specifically calls those who are weary and burdened. Your heaviness is not a reason to stay away; it is the very reason He is calling. You are not a burden to Christ. You are exactly who He had in mind."
+      tags: ["burden","too much","bother","bothering","worthless","useless","waste","in the way","no one wants me","drag"],
+      verses: [
+        {
+          verse: "Come to me, all who labor and are heavy laden, and I will give you rest. Take my yoke upon you, and learn from me, for I am gentle and lowly in heart, and you will find rest for your souls.",
+          ref: "Matthew 11:28-29 (ESV)",
+          short: "Jesus calls the burdened specifically. You are not a burden to Him — you are exactly who He had in mind.",
+          long: "Jesus does not issue this invitation to those who have it together. He explicitly calls those who labor and are heavy laden — people who are tired, weighted down, running out of capacity. Your heaviness is not a reason to stay away from Him. It is the very credential that makes you the intended recipient of this invitation. The phrase 'gentle and lowly in heart' tells you something about how He will receive you: not with impatience, not with judgment, not with a sigh. With gentleness. You are not a burden to Christ. You are exactly who He was talking to."
+        },
+        {
+          verse: "But God shows his love for us in that while we were still sinners, Christ died for us.",
+          ref: "Romans 5:8 (ESV)",
+          short: "God's love for you was not dependent on you being easy or deserving.",
+          long: "The logic of feeling like a burden is usually: I am too much, therefore I am not worth the cost. Romans 5:8 inverts this completely. God's love was demonstrated precisely when we were at our least deserving — not after we had cleaned ourselves up, but while we were still in the mess. The cost of loving you was not hidden from God. He knew it and paid it anyway. That is the measure of what you are worth to Him."
+        }
+      ]
     },
     {
       label: "I feel hopeless",
       icon: "◓",
-      tags: ["hopeless","hopelessness","no hope","pointless","meaningless","lost","dark","darkness","what's the point","no point","give up"],
-      verse: "Why are you cast down, O my soul, and why are you in turmoil within me? Hope in God; for I shall again praise him, my salvation and my God.",
-      ref: "Psalm 42:11 (ESV)",
-      interp: "The psalmist does not pretend his soul is fine — he names his despair honestly. Yet even in that dark place, he speaks truth to himself: hope in God. This is not a denial of pain but a choice of where to anchor. The same God who was faithful before will be faithful again."
+      tags: ["hopeless","hopelessness","no hope","pointless","meaningless","lost","dark","darkness","what's the point","no point","give up","no future"],
+      verses: [
+        {
+          verse: "Why are you cast down, O my soul, and why are you in turmoil within me? Hope in God; for I shall again praise him, my salvation and my God.",
+          ref: "Psalm 42:11 (ESV)",
+          short: "The psalmist names his despair honestly — and still chooses to anchor in God.",
+          long: "What is remarkable about this verse is that the psalmist does not pretend his soul is fine. He names it directly: cast down, in turmoil. He does not perform peace he does not have. But then he does something specific — he speaks truth to himself. He does not wait until he feels hopeful to say that hope is possible. He says it precisely because he does not feel it, as an act of will directed toward God. This is not denial of pain. It is a choice of where to anchor when the feeling of hope is gone. The same God who was faithful before will be faithful again."
+        },
+        {
+          verse: "For I know the plans I have for you, declares the Lord, plans for welfare and not for evil, to give you a future and a hope.",
+          ref: "Jeremiah 29:11 (ESV)",
+          short: "God declares that your future exists and has already been planned for good.",
+          long: "These words were spoken to people in exile — people who had lost everything they thought defined their future. Their city was destroyed, their temple was gone, and they were living in a foreign land. Into that specific darkness, God declared: I have plans. Not vague intentions — plans. Plans that move toward your welfare, not against it. Plans that lead toward a future. When hopelessness tells you there is no path forward, this verse does not argue the point — it simply declares what God has already decided about your future."
+        },
+        {
+          verse: "He gives power to the faint, and to him who has no might he increases strength.",
+          ref: "Isaiah 40:29 (ESV)",
+          short: "God's strength is given specifically to those who have run out of their own.",
+          long: "Hopelessness often comes with exhaustion — the sense that you have used everything you had and there is nothing left. Isaiah 40 addresses this directly: God gives power to the faint. Not to the strong who could use more. To the faint — those who are failing, who have no strength left. This is the specific category of person to whom God increases strength. If you are at the end of yourself, you are in exactly the position this verse was written for."
+        }
+      ]
     },
     {
       label: "I feel afraid",
       icon: "◕",
-      tags: ["afraid","scared","fear","fearful","terrified","anxiety","anxious","worried","worry","nervous","panic","dread"],
-      verse: "Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you, I will uphold you with my righteous right hand.",
-      ref: "Isaiah 41:10 (ESV)",
-      interp: "God gives three promises in a single breath: He will strengthen you, He will help you, He will hold you up. He does not promise the fear will disappear immediately — He promises His own presence as the answer to it. You do not face what you are facing alone."
+      tags: ["afraid","scared","fear","fearful","terrified","anxiety","anxious","worried","worry","nervous","panic","dread","overwhelmed"],
+      verses: [
+        {
+          verse: "Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you, I will uphold you with my righteous right hand.",
+          ref: "Isaiah 41:10 (ESV)",
+          short: "God gives three promises: He will strengthen you, help you, and hold you up.",
+          long: "God does not tell you that what you fear is not real, or that everything will be fine in the way you hope. He says something more specific: I am with you. I am your God. Then three active commitments: I will strengthen you — meaning what you need will be provided. I will help you — meaning you do not face this alone. I will uphold you — meaning even if you fall, you will not be left there. The righteous right hand is a biblical image of power and action. God is not a distant observer of your fear. He is present, active, and holding on."
+        },
+        {
+          verse: "When I am afraid, I put my trust in you. In God, whose word I praise, in God I trust; I shall not be afraid. What can flesh do to me?",
+          ref: "Psalm 56:3-4 (ESV)",
+          short: "The psalmist does not say 'I am not afraid.' He says 'when I am afraid, I trust.'",
+          long: "This verse is honest in a way that is easy to miss. The psalmist does not claim to have conquered fear. He says 'when I am afraid' — acknowledging that fear is a real and recurring experience. The response is not to deny it or push it down, but to make a deliberate move toward trust. Trust here is not a feeling. It is a decision made in the presence of fear, not in its absence. You do not have to stop feeling afraid in order to trust God. The trust comes first, and the fear loses its grip gradually."
+        },
+        {
+          verse: "Peace I leave with you; my peace I give to you. Not as the world gives do I give to you. Let not your hearts be troubled, neither let them be afraid.",
+          ref: "John 14:27 (ESV)",
+          short: "Jesus offers a peace that is not dependent on circumstances being resolved.",
+          long: "Jesus spoke these words on the night before His crucifixion — one of the most turbulent nights in history. The peace He offered was not the peace of things going well. It was a peace that existed independently of circumstances, a peace rooted in His presence and His promises. The world's peace requires the situation to change. Jesus' peace is available now, in the middle of the fear, before the situation resolves. It is not a feeling you achieve — it is a gift you receive."
+        }
+      ]
     }
   ];
 
@@ -325,46 +617,55 @@
       label: "Feeling unseen and forgotten",
       verse: "Even the sparrow finds a home, and the swallow a nest for herself, where she may lay her young, at your altars, O Lord of hosts, my King and my God.",
       ref: "Psalm 84:3 (ESV)",
-      interp: "When you feel both invisible and forgotten, this psalm reminds you that God is not indifferent to small, quiet creatures — He makes a home for them. You are not a stranger to Him. He knows where you are, and He has not turned away."
+      short: "God makes room even for small, quiet creatures. You are not a stranger to Him.",
+      long: "When you feel both invisible and forgotten, this psalm reminds you that God is not indifferent to small, quiet creatures — He makes a home for them in His own dwelling place. The sparrow did not earn its spot. It simply came, and God made room. You are more than a sparrow. You are not a stranger to the God who shaped you. He knows where you are, He has not turned away, and there is room for you."
     },
     {
       matchSets: [[2,4],[2,6],[4,6],[2,4,6]],
       label: "Feeling alone and without hope",
       verse: "The Lord is near to the brokenhearted and saves the crushed in spirit.",
       ref: "Psalm 34:18 (ESV)",
-      interp: "When isolation and hopelessness arrive together, the weight can feel unbearable. But this verse speaks directly into that combination — God does not stand at a distance from the broken. He draws near. His closeness is not a reward for the strong; it is a promise for the crushed."
+      short: "God draws near specifically to those who are most broken.",
+      long: "When isolation and hopelessness arrive together, the weight can feel unbearable. Psalm 34:18 speaks directly into that combination — God does not stand at a distance from the broken. He draws near. The word 'saves' is active: God is not passively waiting for the crushed to recover on their own. He moves toward them. His closeness is not a reward for those who have managed their pain well. It is a specific, deliberate movement toward those who are most crushed."
     },
     {
       matchSets: [[4,5],[1,5],[4,1,5]],
       label: "Feeling abandoned and like a burden",
       verse: "Cast your burden on the Lord, and he will sustain you; he will never permit the righteous to be moved.",
       ref: "Psalm 55:22 (ESV)",
-      interp: "When you feel left behind and also too heavy for others to carry, God's word reframes the whole picture: you are not a burden to avoid — you are a burden He invites you to cast onto Him. He will take it. He will sustain you. He will not let you fall."
+      short: "You are not a burden to be avoided — you are a burden God invites you to give Him.",
+      long: "When you feel left behind and also too heavy for others to carry, God's word reframes the entire picture. You are not a burden to avoid — you are a burden He actively invites you to place on Him. The verb 'cast' is strong: throw it, not hand it gently. He will sustain you — meaning He will hold you up under the weight, not just sympathize with it. Being abandoned by people does not mean being abandoned by God. He will not let you fall."
     },
     {
       matchSets: [[3,6],[3,7],[6,7],[3,6,7]],
       label: "Feeling misunderstood, hopeless, or afraid",
       verse: "For we do not have a high priest who is unable to sympathize with our weaknesses, but one who in every respect has been tempted as we are, yet without sin. Let us then with confidence draw near to the throne of grace.",
       ref: "Hebrews 4:15-16 (ESV)",
-      interp: "Jesus knows what it is to be misunderstood, to carry fear, and to face despair. He is not a distant God who requires you to compose yourself before approaching Him. You are invited to come with exactly the confusion and fear you carry right now."
+      short: "Jesus knows misunderstanding, fear, and despair from the inside. Come to Him as you are.",
+      long: "Jesus was misunderstood throughout His ministry, experienced profound anguish in the garden of Gethsemane, and cried out from the cross in what felt like abandonment. He is not a distant God who requires you to compose yourself before approaching Him. He has been where you are. And because He has, He sympathizes — not from a clinical distance, but from personal experience. You are invited, with confidence, to come exactly as you are: confused, afraid, without hope. The throne of grace has no dress code."
     },
     {
       matchSets: [[0,2],[0,4],[2,4],[0,2,4]],
       label: "Feeling unseen, alone, or abandoned",
       verse: "Where shall I go from your Spirit? Or where shall I flee from your presence? If I ascend to heaven, you are there! If I make my bed in Sheol, you are there.",
       ref: "Psalm 139:7-8 (ESV)",
-      interp: "No matter how deeply alone you feel or how far you seem from others, there is no place you can go where God is not already present. The feeling of isolation is real — but it does not describe the full truth. God is already there, in the exact place you feel most alone."
+      short: "There is no place — no depth of loneliness — where God is not already present.",
+      long: "The psalmist maps out the full extremes of human experience and finds God in all of them. Heaven and Sheol — the heights of joy and the depths of despair — are both inhabited by God's presence. The feeling of being invisible, alone, and abandoned is real. But it does not describe the full truth of your situation. Wherever you are right now — however empty it feels — God is already there. You have not been left in a place He does not know."
     }
   ];
 
   var fallbackVerse = {
+    label: "A word for your heart",
     verse: "The Lord is my shepherd; I shall not want. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul.",
     ref: "Psalm 23:1-3 (ESV)",
-    interp: "Whatever you are carrying right now, this ancient psalm has held the weight of countless lonely hearts. God is described here not as a distant ruler but as a shepherd — close, attentive, and personal. He knows when you are weary. He leads you toward rest."
+    short: "Whatever you carry, God tends to you like a shepherd who knows you by name.",
+    long: "Whatever you are carrying right now, Psalm 23 has held the weight of countless heavy hearts across thousands of years. God is described here not as a distant ruler but as a shepherd — close, attentive, and personal. A shepherd does not manage his flock from a distance. He walks with them, knows each one, and leads them toward rest and restoration. He knows when you are weary. He knows when your soul needs to be restored. He is leading you toward still waters, even now."
   };
 
   var selected = new Set();
   var activeTab = 'toggle';
+  var verseHistory = [];
+  var usedVerseIndices = {};
 
   function switchTab(tab) {
     activeTab = tab;
@@ -372,6 +673,21 @@
     document.getElementById('tab-type').classList.toggle('active', tab === 'type');
     document.getElementById('panel-toggle').classList.toggle('active', tab === 'toggle');
     document.getElementById('panel-type').classList.toggle('active', tab === 'type');
+    updateShowBtn();
+  }
+
+  function updateShowBtn() {
+    var btn = document.getElementById('show-btn-toggle');
+    if (activeTab === 'toggle') {
+      btn.disabled = selected.size === 0;
+      btn.textContent = 'Show me a verse';
+      btn.onclick = showFromToggles;
+    } else {
+      var val = document.getElementById('type-input').value.trim();
+      btn.disabled = val.length < 3;
+      btn.textContent = 'Find a verse';
+      btn.onclick = showFromText;
+    }
   }
 
   function buildToggles() {
@@ -395,7 +711,18 @@
       selected.add(i);
       btn.classList.add('selected');
     }
-    document.getElementById('show-btn-toggle').disabled = selected.size === 0;
+    updateShowBtn();
+  }
+
+  function getNextVerse(feelingIndex) {
+    var pool = feelings[feelingIndex].verses;
+    if (!usedVerseIndices[feelingIndex]) usedVerseIndices[feelingIndex] = [];
+    var used = usedVerseIndices[feelingIndex];
+    if (used.length >= pool.length) usedVerseIndices[feelingIndex] = used = [];
+    var available = pool.map(function(_, i) { return i; }).filter(function(i) { return used.indexOf(i) === -1; });
+    var pick = available[Math.floor(Math.random() * available.length)];
+    used.push(pick);
+    return pool[pick];
   }
 
   function findCombinedVerse(selArr) {
@@ -404,33 +731,70 @@
       var cv = combinedVerses[c];
       for (var m = 0; m < cv.matchSets.length; m++) {
         var ms = cv.matchSets[m];
-        if (ms.length === selArr.length && ms.every(function(x) { return selSet.has(x); })) {
-          return cv;
-        }
+        if (ms.length === selArr.length && ms.every(function(x) { return selSet.has(x); })) return cv;
       }
     }
     for (var c = 0; c < combinedVerses.length; c++) {
       var cv = combinedVerses[c];
       for (var m = 0; m < cv.matchSets.length; m++) {
         var ms = cv.matchSets[m];
-        var overlap = ms.filter(function(x) { return selSet.has(x); });
-        if (overlap.length >= 2) return cv;
+        if (ms.filter(function(x) { return selSet.has(x); }).length >= 2) return cv;
       }
     }
     return null;
   }
 
-  function renderSingleVerse(container, label, verse, ref, interp) {
-    var block = document.createElement('div');
-    block.innerHTML =
-      '<span class="feeling-tag">' + label + '</span>' +
-      '<div class="verse-block">' +
-        '<p class="verse-text">' + verse + '</p>' +
-        '<p class="verse-ref">' + ref + '</p>' +
-      '</div>' +
-      '<p class="section-label">Reflection</p>' +
-      '<p class="interp-text">' + interp + '</p>';
-    container.appendChild(block);
+  function renderVerseBlock(container, label, verseObj, showBanner, bannerText) {
+    if (showBanner) {
+      var banner = document.createElement('div');
+      banner.className = 'combined-banner';
+      banner.innerHTML = bannerText;
+      container.appendChild(banner);
+    }
+
+    var tagDiv = document.createElement('div');
+    tagDiv.innerHTML = '<span class="feeling-tag">' + label + '</span>';
+    tagDiv.style.marginBottom = '1rem';
+    container.appendChild(tagDiv);
+
+    var vb = document.createElement('div');
+    vb.className = 'verse-block';
+    vb.innerHTML = '<p class="verse-text">' + verseObj.verse + '</p><p class="verse-ref">' + verseObj.ref + '</p>';
+    container.appendChild(vb);
+
+    var sl = document.createElement('p');
+    sl.className = 'section-label';
+    sl.textContent = 'Reflection';
+    container.appendChild(sl);
+
+    var shortP = document.createElement('p');
+    shortP.className = 'interp-short';
+    shortP.textContent = verseObj.short;
+    container.appendChild(shortP);
+
+    var longP = document.createElement('p');
+    longP.className = 'interp-long';
+    longP.textContent = verseObj.long;
+    container.appendChild(longP);
+
+    var expandBtn = document.createElement('button');
+    expandBtn.className = 'expand-btn';
+    expandBtn.textContent = 'Read more';
+    expandBtn.onclick = (function(lp, eb) {
+      return function() {
+        if (lp.style.display === 'block') {
+          lp.style.display = 'none';
+          eb.textContent = 'Read more';
+        } else {
+          lp.style.display = 'block';
+          eb.textContent = 'Read less';
+        }
+      };
+    })(longP, expandBtn);
+    container.appendChild(expandBtn);
+
+    verseHistory.unshift({ label: label, verse: verseObj.verse, ref: verseObj.ref });
+    if (verseHistory.length > 20) verseHistory.pop();
   }
 
   function showFromToggles() {
@@ -441,48 +805,34 @@
 
     if (selArr.length === 1) {
       var f = feelings[selArr[0]];
-      renderSingleVerse(container, f.label, f.verse, f.ref, f.interp);
+      renderVerseBlock(container, f.label, getNextVerse(selArr[0]), false);
     } else {
-      var tags = selArr.map(function(i) { return '<span class="feeling-tag">' + feelings[i].label + '</span>'; }).join('');
-      var tagDiv = document.createElement('div');
-      tagDiv.innerHTML = tags;
-      tagDiv.style.marginBottom = '1rem';
-      container.appendChild(tagDiv);
-
       var combined = findCombinedVerse(selArr);
       if (combined) {
-        var banner = document.createElement('div');
-        banner.className = 'combined-banner';
-        banner.innerHTML = '<strong>A verse that holds all of this together</strong><br>Because you selected multiple feelings, here is a passage that speaks to that combination.';
-        container.appendChild(banner);
-        renderSingleVerse(container, combined.label, combined.verse, combined.ref, combined.interp);
+        renderVerseBlock(container, combined.label, combined, true,
+          '<strong>A verse for all of these together</strong><br>Because you selected multiple feelings, here is a passage that speaks to that combination.');
       } else {
         selArr.forEach(function(i, idx) {
-          var f = feelings[i];
           if (idx > 0) { var hr = document.createElement('hr'); hr.className = 'divider'; container.appendChild(hr); }
-          renderSingleVerse(container, f.label, f.verse, f.ref, f.interp);
+          renderVerseBlock(container, feelings[i].label, getNextVerse(i), false);
         });
       }
     }
 
-    document.getElementById('screen-pick').classList.remove('active');
-    document.getElementById('screen-verse').classList.add('active');
-    window.scrollTo(0, 0);
+    setScreen('verse');
   }
 
   function onTypeInput() {
-    var val = document.getElementById('type-input').value.trim();
-    document.getElementById('show-btn-type').disabled = val.length < 3;
+    updateShowBtn();
   }
 
   function matchTextToFeeling(text) {
     var lower = text.toLowerCase();
-    var bestMatch = null;
-    var bestScore = 0;
-    feelings.forEach(function(f) {
+    var bestMatch = null, bestScore = 0;
+    feelings.forEach(function(f, i) {
       var score = 0;
       f.tags.forEach(function(tag) { if (lower.indexOf(tag) !== -1) score++; });
-      if (score > bestScore) { bestScore = score; bestMatch = f; }
+      if (score > bestScore) { bestScore = score; bestMatch = i; }
     });
     return bestScore > 0 ? bestMatch : null;
   }
@@ -492,41 +842,74 @@
     if (!text) return;
     var container = document.getElementById('verses-container');
     container.innerHTML = '';
+    var matchIdx = matchTextToFeeling(text);
 
-    var match = matchTextToFeeling(text);
-    if (match) {
-      var banner = document.createElement('div');
-      banner.className = 'combined-banner';
-      banner.innerHTML = '<strong>Based on what you shared</strong><br>Your words were heard. Here is a verse that speaks to what you described.';
-      container.appendChild(banner);
-      renderSingleVerse(container, match.label, match.verse, match.ref, match.interp);
+    if (matchIdx !== null) {
+      renderVerseBlock(container, feelings[matchIdx].label, getNextVerse(matchIdx), true,
+        '<strong>Based on what you shared</strong><br>Your words were heard. Here is a verse that speaks to what you described.');
     } else {
-      var noMatch = document.createElement('div');
-      noMatch.className = 'no-match';
-      noMatch.textContent = 'Your words were not lost. Even when a feeling is hard to name, God hears it. Here is a verse that speaks to any weary heart.';
-      container.appendChild(noMatch);
-      renderSingleVerse(container, 'A word for your heart', fallbackVerse.verse, fallbackVerse.ref, fallbackVerse.interp);
+      renderVerseBlock(container, fallbackVerse.label, fallbackVerse, true,
+        'Your words were not lost. Even when a feeling is hard to name, God hears it.');
     }
 
-    document.getElementById('screen-pick').classList.remove('active');
-    document.getElementById('screen-verse').classList.add('active');
+    setScreen('verse');
+  }
+
+  function setScreen(name) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById('screen-' + name).classList.add('active');
+    var titles = {
+      pick: ['Find a verse', 'Select your feelings or describe them in your own words'],
+      verse: ['Your verse', 'Based on what you shared'],
+      history: ['Verse history', 'Verses you have received in this session']
+    };
+    document.getElementById('main-title').textContent = titles[name][0];
+    document.getElementById('main-sub').textContent = titles[name][1];
     window.scrollTo(0, 0);
   }
 
+  function showScreen(name) {
+    if (name === 'history') renderHistory();
+    setScreen(name);
+    document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+    var map = { pick: 0, history: 1 };
+    if (map[name] !== undefined) document.querySelectorAll('.nav-btn')[map[name]].classList.add('active');
+  }
+
+  function renderHistory() {
+    var list = document.getElementById('history-list');
+    list.innerHTML = '';
+    if (verseHistory.length === 0) {
+      list.innerHTML = '<p class="empty-history">No verses yet.<br>Go back and select a feeling to receive your first verse.</p>';
+      return;
+    }
+    verseHistory.forEach(function(v) {
+      var item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = '<p class="hi-label">' + v.label + '</p><p class="hi-verse">' + v.verse + '</p><p class="hi-ref">' + v.ref + '</p>';
+      list.appendChild(item);
+    });
+  }
+
   function goBack() {
-    document.getElementById('screen-verse').classList.remove('active');
-    document.getElementById('screen-pick').classList.add('active');
-    window.scrollTo(0, 0);
+    setScreen('pick');
+    document.querySelectorAll('.nav-btn')[0].classList.add('active');
+    document.querySelectorAll('.nav-btn')[1].classList.remove('active');
   }
 
   function resetAll() {
     selected.clear();
     document.querySelectorAll('.toggle-btn').forEach(function(b) { b.classList.remove('selected'); });
-    document.getElementById('show-btn-toggle').disabled = true;
     document.getElementById('type-input').value = '';
-    document.getElementById('show-btn-type').disabled = true;
     switchTab('toggle');
+    updateShowBtn();
     goBack();
+  }
+
+  function clearHistory() {
+    verseHistory = [];
+    usedVerseIndices = {};
+    renderHistory();
   }
 
   buildToggles();
