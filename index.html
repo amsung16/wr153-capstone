@@ -133,27 +133,20 @@
     }
 
     /* Tabs */
-    .tab-row {
+    .type-divider {
       display: flex;
-      margin-bottom: 1.25rem;
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
-      overflow: hidden;
+      align-items: center;
+      gap: 10px;
+      margin: 1.25rem 0 1rem;
+      color: #bbb;
+      font-size: 12px;
     }
-    .tab-btn {
+    .type-divider::before,
+    .type-divider::after {
+      content: '';
       flex: 1;
-      padding: 9px;
-      background: #fff;
-      border: none;
-      font-size: 13px;
-      color: #888;
-      cursor: pointer;
-      transition: all 0.15s;
+      border-top: 1px solid #e5e5e0;
     }
-    .tab-btn.active { background: #E1F5EE; color: #085041; font-weight: 500; }
-    .tab-btn:first-child { border-right: 1px solid #e0e0e0; }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
 
     .question { font-size: 15px; font-weight: 500; color: #111; margin-bottom: 4px; }
     .question-sub { font-size: 13px; color: #888; margin-bottom: 1rem; line-height: 1.5; }
@@ -370,26 +363,15 @@
         <!-- SCREEN: Pick feelings -->
         <div class="screen active" id="screen-pick">
           <div class="screen-body">
-            <div class="tab-row">
-              <button class="tab-btn active" id="tab-toggle" onclick="switchTab('toggle')">Choose a feeling</button>
-              <button class="tab-btn" id="tab-type" onclick="switchTab('type')">Describe in your words</button>
-            </div>
-
-            <div class="tab-panel active" id="panel-toggle">
-              <p class="question">How are you feeling right now?</p>
-              <p class="question-sub">Select one or more. Multiple selections will find a verse that speaks to them together.</p>
-              <div class="toggle-grid" id="toggle-grid"></div>
-            </div>
-
-            <div class="tab-panel" id="panel-type">
-              <p class="question">Describe how you are feeling</p>
-              <p class="question-sub">Write in your own words — the app will find the most relevant verse.</p>
-              <textarea class="type-area" id="type-input" placeholder="e.g. I feel like nobody cares about me, or I have been feeling really empty and alone lately..." oninput="onTypeInput()"></textarea>
-              <p class="type-hint">Write at least 5 words to get a match. Try words like: alone, empty, scared, hopeless, unseen, forgotten, tired, afraid, worthless, lost... Typos are okay.</p>
-            </div>
+            <p class="question">How are you feeling right now?</p>
+            <p class="question-sub">Select one or more feelings, or describe it in your own words below.</p>
+            <div class="toggle-grid" id="toggle-grid"></div>
+            <div class="type-divider"><span>or describe it yourself</span></div>
+            <textarea class="type-area" id="type-input" placeholder="e.g. I feel like nobody cares about me, or I have been feeling really empty and alone lately..." oninput="onTypeInput()"></textarea>
+            <p class="type-hint">Write at least 5 words. Typos are okay.</p>
           </div>
           <div class="action-bar">
-            <button class="primary-btn" id="show-btn-toggle" onclick="showFromToggles()" disabled>Show me a verse</button>
+            <button class="primary-btn" id="show-btn-toggle" onclick="handleSubmit()" disabled>Show me a verse</button>
           </div>
         </div>
 
@@ -663,7 +645,6 @@
   };
 
   var selected = new Set();
-  var activeTab = 'toggle';
   var verseHistory = [];
   var usedVerseIndices = {};
 
@@ -678,16 +659,20 @@
 
   function updateShowBtn() {
     var btn = document.getElementById('show-btn-toggle');
-    if (activeTab === 'toggle') {
-      btn.disabled = selected.size === 0;
-      btn.textContent = 'Show me a verse';
-      btn.onclick = showFromToggles;
+    var hasToggles = selected.size > 0;
+    var typeVal = document.getElementById('type-input').value.trim();
+    var hasText = typeVal.split(/\s+/).filter(Boolean).length >= MIN_WORDS;
+    btn.disabled = !hasToggles && !hasText;
+    btn.textContent = 'Show me a verse';
+  }
+
+  function handleSubmit() {
+    var typeVal = document.getElementById('type-input').value.trim();
+    var hasText = typeVal.split(/\s+/).filter(Boolean).length >= MIN_WORDS;
+    if (hasText) {
+      showFromText();
     } else {
-      var val = document.getElementById('type-input').value.trim();
-      var wordCount = val.length === 0 ? 0 : val.split(/\s+/).length;
-      btn.disabled = wordCount < MIN_WORDS;
-      btn.textContent = 'Find a verse';
-      btn.onclick = showFromText;
+      showFromToggles();
     }
   }
 
@@ -943,7 +928,6 @@
     selected.clear();
     document.querySelectorAll('.toggle-btn').forEach(function(b) { b.classList.remove('selected'); });
     document.getElementById('type-input').value = '';
-    switchTab('toggle');
     updateShowBtn();
     goBack();
   }
