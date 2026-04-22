@@ -315,6 +315,54 @@
     .history-item .hi-verse { font-size: 13px; font-style: italic; color: #333; line-height: 1.6; }
     .empty-history { font-size: 14px; color: #aaa; text-align: center; padding: 2rem 0; line-height: 1.7; }
 
+    /* Confirmation modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 14px;
+      padding: 2rem;
+      max-width: 360px;
+      width: calc(100% - 2rem);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .modal-box h2 { font-size: 16px; font-weight: 600; color: #111; margin-bottom: 8px; }
+    .modal-box p { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 1.5rem; }
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-cancel {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      color: #555;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .modal-cancel:hover { background: #f5f5f0; }
+    .modal-confirm {
+      flex: 1;
+      padding: 10px;
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .modal-confirm:hover { background: #c0392b; }
+
     /* Responsive */
     @media (max-width: 900px) {
       .sidebar { width: 220px; padding: 1.5rem 1rem; }
@@ -397,6 +445,18 @@
         </div>
 
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Clear history confirmation modal -->
+<div class="modal-overlay" id="clear-modal">
+  <div class="modal-box">
+    <h2>Clear verse history?</h2>
+    <p>This will permanently remove all verses from your history. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeClearModal()">Cancel</button>
+      <button class="modal-confirm" onclick="confirmClearHistory()">Yes, clear it</button>
     </div>
   </div>
 </div>
@@ -933,10 +993,23 @@
   }
 
   function clearHistory() {
+    document.getElementById('clear-modal').classList.add('open');
+  }
+
+  function closeClearModal() {
+    document.getElementById('clear-modal').classList.remove('open');
+  }
+
+  function confirmClearHistory() {
     verseHistory = [];
     usedVerseIndices = {};
+    closeClearModal();
     renderHistory();
   }
+
+  document.getElementById('clear-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeClearModal();
+  });
 
   buildToggles();
 </script>
