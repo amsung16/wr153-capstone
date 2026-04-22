@@ -385,7 +385,7 @@
               <p class="question">Describe how you are feeling</p>
               <p class="question-sub">Write in your own words — the app will find the most relevant verse.</p>
               <textarea class="type-area" id="type-input" placeholder="e.g. I feel like nobody cares about me, or I have been feeling really empty and alone lately..." oninput="onTypeInput()"></textarea>
-              <p class="type-hint">Try words like: alone, empty, scared, hopeless, unseen, forgotten, tired, afraid, worthless, lost...</p>
+              <p class="type-hint">Write at least 5 words to get a match. Try words like: alone, empty, scared, hopeless, unseen, forgotten, tired, afraid, worthless, lost... Typos are okay.</p>
             </div>
           </div>
           <div class="action-bar">
@@ -684,7 +684,8 @@
       btn.onclick = showFromToggles;
     } else {
       var val = document.getElementById('type-input').value.trim();
-      btn.disabled = val.length < 3;
+      var wordCount = val.length === 0 ? 0 : val.split(/\s+/).length;
+      btn.disabled = wordCount < MIN_WORDS;
       btn.textContent = 'Find a verse';
       btn.onclick = showFromText;
     }
@@ -826,15 +827,56 @@
     updateShowBtn();
   }
 
+  var MIN_WORDS = 5;
+  var MIN_SCORE = 2;
+  var FUZZY_THRESHOLD = 2;
+
+  function levenshtein(a, b) {
+    var m = a.length, n = b.length;
+    var dp = [];
+    for (var i = 0; i <= m; i++) {
+      dp[i] = [i];
+      for (var j = 1; j <= n; j++) {
+        if (i === 0) { dp[i][j] = j; continue; }
+        dp[i][j] = a[i-1] === b[j-1]
+          ? dp[i-1][j-1]
+          : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+      }
+    }
+    return dp[m][n];
+  }
+
+  function fuzzyMatchTag(word, tag) {
+    if (tag.indexOf(' ') !== -1) {
+      return tag.split(' ').every(function(part) { return fuzzyMatchTag(word, part); })
+        ? true : false;
+    }
+    if (word === tag) return true;
+    if (word.length < 4 || tag.length < 4) return word === tag;
+    return levenshtein(word, tag) <= FUZZY_THRESHOLD;
+  }
+
   function matchTextToFeeling(text) {
-    var lower = text.toLowerCase();
+    var words = text.toLowerCase().trim().split(/\s+/);
+    if (words.length < MIN_WORDS) return null;
+
     var bestMatch = null, bestScore = 0;
     feelings.forEach(function(f, i) {
       var score = 0;
-      f.tags.forEach(function(tag) { if (lower.indexOf(tag) !== -1) score++; });
+      f.tags.forEach(function(tag) {
+        var tagWords = tag.split(' ');
+        if (tagWords.length > 1) {
+          if (text.toLowerCase().indexOf(tag) !== -1) score += 2;
+        } else {
+          words.forEach(function(w) {
+            if (fuzzyMatchTag(w, tag)) score++;
+          });
+        }
+      });
       if (score > bestScore) { bestScore = score; bestMatch = i; }
     });
-    return bestScore > 0 ? bestMatch : null;
+
+    return bestScore >= MIN_SCORE ? bestMatch : null;
   }
 
   function showFromText() {
