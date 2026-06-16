@@ -124,4 +124,4 @@ README.md       # This file
 ## Author
 
 Aiden Sung
-Boston University, College of Data Science — Class of 2029
+Boston University, Faculty of Computing & Data Science — Class of 2029
